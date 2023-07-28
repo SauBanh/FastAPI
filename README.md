@@ -474,3 +474,92 @@ print(student_3.fullname_with_major())
 ```
 
 ### Class Inheritance
+
+```python
+# create class
+class Student:
+    def __init__(self, first_name, last_name):
+        self.first_name =first_name
+        self.last_name = last_name
+    def greetings(self):
+        return f"Hello! I am {self.first_name} {self.last_name}"
+
+# Create class
+class CollegeStudent(Student):
+    def __init__(self, first_name, last_name, major):
+        super().__init__(first_name, last_name)
+        self.major = major
+    def greetings(self):
+        return f"{self.first_name} is a college student!"
+
+class NonCollegeStudent(Student):
+    def __init__(self, first_name, last_name, future_adult_job):
+        super().__init__(first_name, last_name)
+        self.future_adult_job = future_adult_job
+    def grow_up(self):
+        return f"When I grow up, I want to be a {self.future_adult_job}"
+
+# student_1 = CollegeStudent("Nguyễn", "Tuấn Anh", "FullStack")
+# student_2 = Student("Sáu", "Bảnh")
+
+student_1 = CollegeStudent("Nguyễn", "Tuấn Anh", "FullStack")
+student_2 = NonCollegeStudent("Sáu", "Bảnh", "FrontEnd")
+
+# print(student_1.greetings())
+# print(student_2.greetings())
+# print(student_1.major)
+print(student_2.greetings())
+print(student_2.grow_up())
+```
+
+## Virtual Environments Overview
+
+### Install Dependencies
+
+Check version
+
+```terminal
+python -m pip --version
+```
+
+Create a virtual environment with name fastapienv
+
+```terminal
+python -m venv fastapienv
+```
+
+To enable a virtual field we use
+
+```terminal
+fastapienv\Scripts\activate.bat
+```
+
+Install FastAPI
+
+```terminal
+pip install fastapi
+```
+
+Install uvicorn[standard]
+
+```terminal
+pip install "uvicorn[standard]"
+```
+
+Uvicorn is a lightning-fast ASGI (Asynchronous Server Gateway Interface) server that allows you to run and serve Python web applications that are built on ASGI frameworks like FastAPI, Starlette, and others. ASGI is a specification that enables handling asynchronous web requests in Python, making it possible to build high-performance web applications.
+
+The [standard] part in the command refers to an "extra" feature of the uvicorn package, which means it installs optional dependencies that are not required for basic functionality but might be useful for certain use cases. These additional dependencies could include things like support for HTTP/2, automatic reload on code changes, and more.
+
+By running this command, you will install uvicorn along with any optional dependencies that are part of the "standard" extra feature, enhancing its capabilities and allowing you to run ASGI web applications efficiently.
+
+To deactivate an environment
+
+```terminal
+deactivate
+```
+
+### GET Request Method
+
+```python
+
+```
