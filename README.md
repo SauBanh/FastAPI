@@ -868,5 +868,426 @@ def find_book_id(book: Book):
 ## Pydantic Configurations
 
 ```python
+# from fastapi import Body, FastAPI
+from typing import Optional
+from fastapi import FastAPI, Path, Query
+from pydantic import BaseModel, Field
 
+app = FastAPI()
+
+class Book:
+    id: int
+    title: str
+    author: str
+    description: str
+    rating: int
+    published_date: int
+    def __init__(self, id, title, author, description, rating, published_date):
+        self.id = id
+        self.title = title
+        self.author = author
+        self.description = description
+        self.rating = rating
+        self.published_date = published_date
+
+class BookRequest(BaseModel):
+    id: Optional[int] = 0
+    title: str = Field(min_length=3)
+    author: str = Field(min_length=1)
+    description: str = Field(min_length=1, max_length=100)
+    rating: int = Field(gt=-1, lt=6)
+    published_date: int = Field(gt=1999, lt=2031)
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "title": "A new book",
+                "author": "codingwithSauBanh",
+                "description": "A new description of a book",
+                "rating": 5,
+                "published_date": 2000
+            }
+        }
+
+BOOKS = [
+    Book(1, "Computer Science Pro", "CodingwithSauBanh", "A very nice book", 5, 2008),
+    Book(2, "Be Fast with FastAPI", "CodingwithSauBanh", "A great book", 5, 2005),
+    Book(3, "Master Endpoints", "CodingwithSauBanh", "A awesome book", 5, 2010),
+    Book(4, "HP1", "Author 1", "Book Description", 2, 2021),
+    Book(5, "HP2", "Author 2", "Book Description", 3, 2023),
+    Book(6, "HP3", "Author 3", "Book Description", 1, 2007),
+]
+
+@app.get("/books")
+async def read_all_books():
+    return BOOKS
+
+@app.get("/books/{book_id}")
+async def read_book(book_id: int = Path(gt=0)):
+    for book in BOOKS:
+        if book.id == book_id:
+            return book
+
+@app.get("/books/")
+async def read_book_by_rating(book_rating: int = Query(gt=-1, lt=6)):
+    book_to_return = []
+    for book in BOOKS:
+        if book.rating == book_rating:
+            book_to_return.append(book)
+    return book_to_return
+
+@app.get("/books/publish/")
+async def read_book_published_date(published_date: int = Query(gt=1999, lt=2031)):
+    books_to_return = []
+    for book in BOOKS:
+        if book.published_date == published_date:
+            books_to_return.append(book)
+    return books_to_return
+
+@app.post("/create_book")
+async def create_book(book_request: BookRequest):
+    # print(type(book_request))
+    new_book = Book(**book_request.dict())
+    # print(type(new_book))
+    BOOKS.append(find_book_id(new_book))
+
+def find_book_id(book: Book):
+    book.id = 1 if len(BOOKS) == 0 else BOOKS[-1].id + 1
+    # if len(BOOKS) > 0:
+    #     book.id = BOOKS[-1].id + 1
+    # else:
+    #     book.id = 1
+    return book
+
+@app.put("/books/update_book")
+async def update_book(book: BookRequest):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book.id:
+            BOOKS[i] = book
+
+@app.delete("/books/{book_id}")
+async def delete_book(book_id: int = Path(gt=0)):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book_id:
+            BOOKS.pop(i)
+            break
+
+
+```
+
+## Data Validation Query Parameters
+
+```python
+# from fastapi import Body, FastAPI
+from typing import Optional
+from fastapi import FastAPI, Path, Query
+from pydantic import BaseModel, Field
+
+app = FastAPI()
+
+class Book:
+    id: int
+    title: str
+    author: str
+    description: str
+    rating: int
+    published_date: int
+    def __init__(self, id, title, author, description, rating, published_date):
+        self.id = id
+        self.title = title
+        self.author = author
+        self.description = description
+        self.rating = rating
+        self.published_date = published_date
+
+class BookRequest(BaseModel):
+    id: Optional[int] = 0
+    title: str = Field(min_length=3)
+    author: str = Field(min_length=1)
+    description: str = Field(min_length=1, max_length=100)
+    rating: int = Field(gt=-1, lt=6)
+    published_date: int = Field(gt=1999, lt=2031)
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "title": "A new book",
+                "author": "codingwithSauBanh",
+                "description": "A new description of a book",
+                "rating": 5,
+                "published_date": 2000
+            }
+        }
+
+BOOKS = [
+    Book(1, "Computer Science Pro", "CodingwithSauBanh", "A very nice book", 5, 2008),
+    Book(2, "Be Fast with FastAPI", "CodingwithSauBanh", "A great book", 5, 2005),
+    Book(3, "Master Endpoints", "CodingwithSauBanh", "A awesome book", 5, 2010),
+    Book(4, "HP1", "Author 1", "Book Description", 2, 2021),
+    Book(5, "HP2", "Author 2", "Book Description", 3, 2023),
+    Book(6, "HP3", "Author 3", "Book Description", 1, 2007),
+]
+
+@app.get("/books")
+async def read_all_books():
+    return BOOKS
+
+@app.get("/books/{book_id}")
+async def read_book(book_id: int = Path(gt=0)):
+    for book in BOOKS:
+        if book.id == book_id:
+            return book
+
+@app.get("/books/")
+async def read_book_by_rating(book_rating: int = Query(gt=-1, lt=6)):
+    book_to_return = []
+    for book in BOOKS:
+        if book.rating == book_rating:
+            book_to_return.append(book)
+    return book_to_return
+
+@app.get("/books/publish/")
+async def read_book_published_date(published_date: int = Query(gt=1999, lt=2031)):
+    books_to_return = []
+    for book in BOOKS:
+        if book.published_date == published_date:
+            books_to_return.append(book)
+    return books_to_return
+
+@app.post("/create_book")
+async def create_book(book_request: BookRequest):
+    # print(type(book_request))
+    new_book = Book(**book_request.dict())
+    # print(type(new_book))
+    BOOKS.append(find_book_id(new_book))
+
+def find_book_id(book: Book):
+    book.id = 1 if len(BOOKS) == 0 else BOOKS[-1].id + 1
+    # if len(BOOKS) > 0:
+    #     book.id = BOOKS[-1].id + 1
+    # else:
+    #     book.id = 1
+    return book
+
+@app.put("/books/update_book")
+async def update_book(book: BookRequest):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book.id:
+            BOOKS[i] = book
+
+@app.delete("/books/{book_id}")
+async def delete_book(book_id: int = Path(gt=0)):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book_id:
+            BOOKS.pop(i)
+            break
+```
+
+## Status Codes
+
+status list:
+
+**1xx (Information)**: Request received, continue processing.
+
+| Status Code | Describe                                                     |
+| ----------- | ------------------------------------------------------------ |
+| 1xx         | Information: Request has been received, continue processing. |
+| 100         | Continue                                                     |
+| 101         | Switching Protocols                                          |
+| 102         | Processing (WebDAV)                                          |
+| 103         | Early Hints                                                  |
+
+**2xx (Success)**: Request has been received, understood and accepted.
+
+| Status Code | Describe                                                    |
+| ----------- | ----------------------------------------------------------- |
+| 2xx         | Success: The request was received, understood and accepted. |
+| 200         | OK                                                          |
+| 201         | Created                                                     |
+| 202         | Accepted                                                    |
+| 203         | Non-Authoritative Information                               |
+| 204         | No Content                                                  |
+| 205         | Reset Content                                               |
+| 206         | Partial Content                                             |
+| 207         | Multi-Status (WebDAV)                                       |
+| 208         | Already Reported (WebDAV)                                   |
+| 226         | IM Used                                                     |
+
+**3xx (Navigation)**: Requires to continue or take an additional action to complete.
+
+| Status Code | Describe                                                                 |
+| ----------- | ------------------------------------------------------------------------ |
+| 3xx         | Redirect: Requires to continue or take an additional action to complete. |
+| 300         | Multiple Choices                                                         |
+| 301         | Moved Permanently                                                        |
+| 302         | Found (Moved Temporarily)                                                |
+| 303         | See Other                                                                |
+| 304         | Not Modified                                                             |
+| 305         | Use Proxy (deprecated)                                                   |
+| 307         | Temporary Redirect                                                       |
+| 308         | Permanent Redirect (experimental)                                        |
+
+**4xx (Client error)**: The request contains incorrect syntax or cannot be completed.
+
+| Status Code | Describe                                                                    |
+| ----------- | --------------------------------------------------------------------------- |
+| 4xx         | Client error: The request contains incorrect syntax or cannot be completed. |
+| 400         | Bad Request                                                                 |
+| 401         | Unauthorized                                                                |
+| 402         | Payment Required                                                            |
+| 403         | Forbidden                                                                   |
+| 404         | Not Found                                                                   |
+| 405         | Method Not Allowed                                                          |
+| 406         | Not Acceptable                                                              |
+| 407         | Proxy Authentication Required                                               |
+| 408         | Request Timeout                                                             |
+| 409         | Conflict                                                                    |
+| 410         | Gone                                                                        |
+| 411         | Length Required                                                             |
+| 412         | Precondition Failed                                                         |
+| 413         | Payload Too Large                                                           |
+| 414         | URI Too Long                                                                |
+| 415         | Unsupported Media Type                                                      |
+| 416         | Range Not Satisfiable                                                       |
+| 417         | Expectation Failed                                                          |
+| 418         | I'm a teapot (RFC 2324)                                                     |
+| 421         | Misdirected Request                                                         |
+| 422         | Unprocessable Entity (WebDAV)                                               |
+| 423         | Locked (WebDAV)                                                             |
+| 424         | Failed Dependency (WebDAV)                                                  |
+| 426         | Upgrade Required                                                            |
+| 428         | Precondition Required                                                       |
+| 429         | Too Many Requests                                                           |
+| 431         | Request Header Fields Too Large                                             |
+| 451         | Unavailable For Legal Reasons                                               |
+
+**5xx (Server error)**: The server could not complete a valid request.
+
+| Status Code | Describe                                                     |
+| ----------- | ------------------------------------------------------------ |
+| 5xx         | Server Error: The server could not complete a valid request. |
+| 500         | Internal Server Error                                        |
+| 501         | Not Implemented                                              |
+| 502         | Bad Gateway                                                  |
+| 503         | Service Unavailable                                          |
+| 504         | Gateway Timeout                                              |
+| 505         | HTTP Version Not Supported                                   |
+| 506         | Variant Also Negotiates (Experimental)                       |
+| 507         | Insufficient Storage (WebDAV)                                |
+| 508         | Loop Detected (WebDAV)                                       |
+| 510         | Not Extended                                                 |
+| 511         | Network Authentication Required                              |
+
+```c
+1xx (Informational responses):
+
+100 Continue: Máy chủ hiểu yêu cầu từ máy khách và yêu cầu máy khách tiếp tục gửi phần còn lại của yêu cầu.
+101 Switching Protocols: Máy chủ đồng ý chuyển đổi giao thức được yêu cầu trong yêu cầu nào đó.
+
+2xx (Successful responses):
+
+200 OK: Yêu cầu đã thành công và có dữ liệu phản hồi được trả về.
+201 Created: Yêu cầu đã thành công và tài nguyên mới đã được tạo thành công.
+202 Accepted: Yêu cầu đã được chấp nhận để xử lý, nhưng việc xử lý có thể chưa hoàn thành.
+203 Non-Authoritative Information: Dữ liệu được trả về không phải là nguồn gốc từ máy chủ xuất phát, mà là từ một máy chủ trung gian.
+204 No Content: Yêu cầu đã thành công, nhưng không có nội dung phản hồi để trả về.
+205 Reset Content: Yêu cầu đã thành công, và client phải đặt lại tài liệu mà nó đang hiển thị.
+206 Partial Content: Máy chủ đã trả về chỉ một phần của tài nguyên yêu cầu, thường được sử dụng cho phân mảnh (range) yêu cầu.
+
+3xx (Redirection messages):
+
+300 Multiple Choices: Có nhiều tài nguyên khả dụng cho yêu cầu được cho, máy khách nên chọn một trong số chúng.
+301 Moved Permanently: Tài nguyên được yêu cầu đã được chuyển vĩnh viễn đến một địa chỉ mới.
+302 Found (or Moved Temporarily): Tài nguyên được yêu cầu tạm thời chuyển đến một địa chỉ mới.
+303 See Other (or Redirect): Yêu cầu đã được xử lý xong và client nên chuyển sang địa chỉ mới cung cấp trong trường header "Location".
+304 Not Modified: Client sử dụng bộ nhớ cache và phiên bản đã cache của tài nguyên vẫn hiện có, không cần phải tải lại.
+307 Temporary Redirect: Tài nguyên được yêu cầu tạm thời chuyển đến một địa chỉ mới, client không nên thay đổi phương thức HTTP khi gửi lại yêu cầu.
+308 Permanent Redirect: Tài nguyên được yêu cầu đã được chuyển vĩnh viễn đến một địa chỉ mới, client không nên thay đổi phương thức HTTP khi gửi lại yêu cầu.
+
+4xx (Client error responses):
+
+400 Bad Request: Yêu cầu không hợp lệ do lỗi cú pháp hoặc yêu cầu không thể hiểu được.
+401 Unauthorized: Yêu cầu cần xác thực và người dùng chưa được xác thực hoặc thông tin xác thực không hợp lệ.
+402 Payment Required: Đã không sử dụng (từ phiên bản HTTP/1.1).
+403 Forbidden: Máy chủ hiểu yêu cầu, nhưng từ chối cung cấp nội dung cho người dùng cụ thể.
+404 Not Found: Tài nguyên được yêu cầu không tồn tại trên máy chủ.
+405 Method Not Allowed: Phương thức yêu cầu không được hỗ trợ cho tài nguyên được yêu cầu.
+406 Not Acceptable: Máy chủ không hỗ trợ định dạng yêu cầu mà người dùng yêu cầu.
+407 Proxy Authentication Required: Yêu cầu cần xác thực proxy.
+408 Request Timeout: Máy chủ đã hết thời gian chờ đợi cho yêu cầu.
+409 Conflict: Yêu cầu xung đột với trạng thái hiện tại của tài nguyên.
+410 Gone: Tài nguyên đã bị xóa và không còn tồn tại trên máy chủ.
+411 Length Required: Yêu cầu thiếu trường "Content-Length".
+412 Precondition Failed: Điều kiện tiên quyết của yêu cầu không được thỏa mãn.
+413 Payload Too Large: Yêu cầu quá lớn, máy chủ từ chối xử lý do kích thước quá lớn.
+414 URI Too Long: URL yêu cầu quá dài, máy chủ không thể xử lý.
+415 Unsupported Media Type: Định dạng dữ liệu yêu cầu không được hỗ trợ.
+416 Range Not Satisfiable: Yêu cầu có trường "Range" không hợp lệ hoặc không thể thỏa mãn.
+417 Expectation Failed: Máy chủ không thể đáp ứng các yêu cầu trong header "Expect".
+418 I am a teapot: Mã trạng thái phụ thuộc vào chế độ chế biến trà của máy chủ (thông qua RFC 2324).
+421 Misdirected Request: Yêu cầu không thể được gửi tới máy chủ hiện tại (RFC 7540).
+422 Unprocessable Entity: Yêu cầu hợp lệ nhưng máy chủ không thể xử lý (WebDAV; RFC 4918).
+423 Locked: Tài nguyên được yêu cầu đang bị khóa (WebDAV; RFC 4918).
+424 Failed Dependency: Yêu cầu yêu cầu không thành công do yêu cầu trước đó thất bại (WebDAV; RFC 4918).
+426 Upgrade Required: Máy chủ yêu cầu phiên bản protocol cao hơn (RFC 2817).
+428 Precondition Required: Yêu cầu yêu cầu phải có header điều kiện tiên quyết (RFC 6585).
+429 Too Many Requests: Người dùng đã gửi quá nhiều yêu cầu trong một khoảng thời gian cụ thể (RFC 6585).
+431 Request Header Fields Too Large: Header yêu cầu quá lớn, máy chủ từ chối xử lý (RFC 6585).
+451 Unavailable For Legal Reasons: Truy cập tài nguyên bị từ chối vì lý do pháp lý (RFC 7725).
+
+5xx (Server error responses):
+
+500 Internal Server Error: Máy chủ gặp lỗi nội bộ không xác định khi xử lý yêu cầu.
+501 Not Implemented: Máy chủ không hỗ trợ tính năng yêu cầu trong yêu cầu.
+502 Bad Gateway: Máy chủ proxy hoặc cổng không hợp lệ nhận được phản hồi không hợp lệ từ máy chủ lưu trữ.
+503 Service Unavailable: Máy chủ không thể xử lý yêu cầu do quá tải hoặc bảo trì.
+504 Gateway Timeout: Máy chủ proxy không nhận được phản hồi từ máy chủ lưu trữ trong khoảng thời gian cho phép.
+505 HTTP Version Not Supported: Phiên bản HTTP không được hỗ trợ bởi máy chủ.
+506 Variant Also Negotiates: Máy chủ có nhiều biến thể lựa chọn trong cơ sở dữ liệu, nhưng mục tiêu chỉ định đã không được tìm thấy (RFC 2295).
+507 Insufficient Storage: Máy chủ không có không gian đủ để hoàn thành yêu cầu (WebDAV; RFC 4918).
+508 Loop Detected: Máy chủ đã phát hiện một vòng lặp vô hạn trong yêu cầu (WebDAV; RFC 5842).
+510 Not Extended: Máy chủ yêu cầu giá trị mở rộng bổ sung không được hỗ trợ bởi máy khách.
+511 Network Authentication Required: Yêu cầu yêu cầu xác thực mạng (RFC 6585).
+```
+
+## HTTP Exceptions
+
+```python
+# from fastapi import Body, FastAPI
+from typing import Optional
+from fastapi import FastAPI, Path, Query, HTTPException
+from pydantic import BaseModel, Field
+
+@app.get("/books/{book_id}")
+async def read_book(book_id: int = Path(gt=0)):
+    for book in BOOKS:
+        if book.id == book_id:
+            return book
+    raise HTTPException(status_code=404, detail="Item not found")
+```
+
+```python
+# from fastapi import Body, FastAPI
+from typing import Optional
+from fastapi import FastAPI, Path, Query, HTTPException
+from pydantic import BaseModel, Field
+from starlette import status
+
+@app.get("/books", status_code=status.HTTP_200_OK)
+async def read_all_books():
+    return BOOKS
+
+@app.get("/books/{book_id}")
+async def read_book(book_id: int = Path(gt=0)):
+    for book in BOOKS:
+        if book.id == book_id:
+            return book
+    raise HTTPException(status_code=404, detail="Item not found")
+
+@app.post("/create_book", status_code=status.HTTP_201_CREATED)
+async def create_book(book_request: BookRequest):
+    # print(type(book_request))
+    new_book = Book(**book_request.dict())
+    # print(type(new_book))
+    BOOKS.append(find_book_id(new_book))
 ```
