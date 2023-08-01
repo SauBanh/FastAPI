@@ -1291,3 +1291,53 @@ async def create_book(book_request: BookRequest):
     # print(type(new_book))
     BOOKS.append(find_book_id(new_book))
 ```
+
+## Config SQLite 3
+
+1. Download Sqlite: https://www.sqlite.org/download.html
+2. Move file in C and set variables
+3. Control Panel => System and Security => System => Advanced => Environment Variables
+4. Inside System variables double click
+5. Add new variables: C:\sqlite3
+6. Ok all
+
+## SQL Queries
+
+### Inserting database table(todos)
+
+```SQL
+insert into todos(title, description, priority, complete)
+values("Haircut", "Need to get length 1mm'3", False)
+```
+
+### Select Queries
+
+```SQL
+SELECT * FROM todos; --Select all columns and rows
+SELECT title FROM todos; --Select just title from columns
+SELECT description FROM todos; --Select just description from columns
+SELECT description, title FROM todos; --Select title, description from columns
+SELECT description, title, priority FROM todos; --Select title, description, priority from columns
+```
+
+### wwhere SQL queries
+
+```SQL
+SELECT * FROM todos WHERE priority=5 -- select all rows & columns where priority=5
+SELECT * FROM todos WHERE title='Feed dog' -- select all rows & columns where title='Feed dog'
+SELECT * FROM todos WHERE id=2 -- select all rows & columns where id=2
+```
+
+### Update SQL queries
+
+```SQL
+UPDATE todos SET complete=True WHERE id=5 -- Update All rows & columns to now have complete = True Where id=5
+
+UPDATE todos SET complete=True WHERE title='Learn something new' -- Update All rows & columns to now have complete = True Where title='Learn something new'
+```
+
+### Delete SQL queries
+
+```SQL
+
+```
