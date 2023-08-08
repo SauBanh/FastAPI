@@ -1,5 +1,95 @@
 # FastAPI
 
+## install packages and commands terminal
+
+### Install Dependencies
+
+Check version
+
+```terminal
+python -m pip --version
+```
+
+Create a virtual environment with name fastapienv
+
+```terminal
+python -m venv fastapienv
+```
+
+To enable a virtual field we use
+
+```terminal
+fastapienv\Scripts\activate.bat
+```
+
+Install FastAPI
+
+```terminal
+pip install fastapi
+```
+
+Install uvicorn[standard]
+
+```terminal
+pip install "uvicorn[standard]"
+```
+
+Uvicorn is a lightning-fast ASGI (Asynchronous Server Gateway Interface) server that allows you to run and serve Python web applications that are built on ASGI frameworks like FastAPI, Starlette, and others. ASGI is a specification that enables handling asynchronous web requests in Python, making it possible to build high-performance web applications.
+
+The [standard] part in the command refers to an "extra" feature of the uvicorn package, which means it installs optional dependencies that are not required for basic functionality but might be useful for certain use cases. These additional dependencies could include things like support for HTTP/2, automatic reload on code changes, and more.
+
+By running this command, you will install uvicorn along with any optional dependencies that are part of the "standard" extra feature, enhancing its capabilities and allowing you to run ASGI web applications efficiently.
+
+To deactivate an environment
+
+```terminal
+deactivate
+```
+
+to run the project:
+activate the environment where the libraries are installed
+run
+
+```terminal
+uvicorn main:app --reload
+```
+
+with main is name file and app is variable in file main
+
+To hash User's Password use package
+
+```terminal
+pip install "passlib[bcrypt]"
+```
+
+```terminal
+pip install python-multipart
+```
+
+install JSON Web Token (JWT)
+
+```terminal
+pip install "python-jose[cryptography]"
+```
+
+install package to connect to PostgreSQL database
+
+```PostgreSQL
+pip install psycopg2-binary
+```
+
+install package to connect to mysql database
+
+```mysql
+pip install pymysql
+```
+
+install package alembic
+
+```terminal
+pip install alembic
+```
+
 ## Refresher
 
 ### Variables!
@@ -1439,3 +1529,82 @@ async def delete_todo(db: db_dependency, todo_id: int = Path(gt=0)):
     db.query(Todos).filter(Todos.id == todo_id).delete()
     db.commit()
 ```
+
+## JSON Web Token (JWT)
+
+install JSON Web Token (JWT)
+
+```terminal
+pip install "python-jose[cryptography]"
+```
+
+## Postgres
+
+```Postgres
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+    <!-- SERIAL like id -->
+    id SERIAL,
+    email varchar(200) DEFAULT NULL,
+    username varchar(45) DEFAULT NULL,
+    first_name varchar(45) DEFAULT NULL,
+    last_name varchar(45) DEFAULT NULL,
+    hashed_password varchar(200) DEFAULT NULL,
+    is_active boolean DEFAULT NULL,
+    role varchar(45) DEFAULT NULL,
+    PRIMARY KEY (id)
+);
+
+DROP TABLE IF EXISTS todos;
+
+CREATE TABLE todos (
+    id SERIAL,
+    title varchar(200) DEFAULT NULL,
+    description varchar(200) DEFAULT NULL,
+    priority integer  DEFAULT NULL,
+    complete boolean  DEFAULT NULL,
+    owner_id integer  DEFAULT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+);
+```
+
+## PostgreSQL Connect to FastAPI
+
+install package to connect to database
+
+```PostgreSQL
+pip install psycopg2-binary
+```
+
+### MySQL
+
+install package to connect to mysql database
+
+```terminal
+pip install pymysql
+```
+
+## Alembic Data Migration
+
+install package alembic
+
+```terminal
+pip install alembic
+```
+
+| Git Comman                     | Details                                     |
+| ------------------------------ | ------------------------------------------- |
+| alembic init <folder name>     | Initializes a new, generic environment      |
+| alembic revision -m \<message> | Create a new revision of the environment    |
+| alembic upgrade \<revision#>   | Run our upgrade migration to our database   |
+| alembic downgrade \<revision#> | Run our downgrade migration to our database |
+
+Initialization alembic
+
+```terminal
+alembic init alembic
+```
+
+### Alembic Upgrade Command
