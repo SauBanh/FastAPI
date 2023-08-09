@@ -4,9 +4,9 @@ from sqlalchemy.ext.declarative import declarative_base #  từ SQLAlchemy, mộ
 # Định nghĩa một biến 
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./todosapp.db" # chứa URL cơ sở dữ liệu cho ứng dụng. Trong trường hợp này, URL là "sqlite:///./todos.db", nghĩa là sử dụng SQLite database lưu trữ trong tệp "todos.db" tại thư mục hiện tại.
 
-# SQLALCHEMY_DATABASE_URL = "postgresql://postgres:0962147976@localhost/TodoApplicationDatabase"
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:0962147976@localhost/TodoApplicationDatabase"
 
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:0962147976@127.0.0.1:3306/todoaplicationdatabase"
+# SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:0962147976@127.0.0.1:3306/todoaplicationdatabase"
 
 # engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={'check_same_thread': False})
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
